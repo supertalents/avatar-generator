@@ -36,3 +36,61 @@
     transform: rotate(360deg);
   }
 }
+/* src/App.css */
+
+.App {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4b4f56;
+  width: 100%;
+  height: 300px;
+  padding: 20px;
+  border-radius: 5px;
+  border: 3px dashed #8c8f93;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.result-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 300px;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+@media (max-width: 767px) {
+  .dropzone {
+    height: 150px;
+  }
+
+  .result-image {
+    height: 150px;
+  }
+}
+
+.image-container {
+  width: 400px;
+  height: 400px;
+  overflow: hidden;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
