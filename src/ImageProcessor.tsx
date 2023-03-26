@@ -37,13 +37,13 @@ const ImageProcessor: React.FC = () => {
 
                     if (response.data.status === 'COMPLETED') {
                         console.log(`response: ${JSON.stringify(response)}`);
-                        
+
                         if (response.data.output?.includes('image')) {
                             const resultOutputJson = JSON.parse(response.data.output)
                             const resultImage = resultOutputJson['image']
                             setResultImageUrl(`data:image/png;base64,${resultImage}`);
                             console.log(`Result image url: ${resultImageUrl}`);
-                            
+
                             clearInterval(interval);
                             setIsLoading(false);
                         }
@@ -72,7 +72,7 @@ const ImageProcessor: React.FC = () => {
         accept: {
             'image/jpeg': [],
             'image/png': []
-          },
+        },
         maxFiles: 1,
         onDrop,
     });
@@ -86,11 +86,11 @@ const ImageProcessor: React.FC = () => {
         try {
             setIsLoading(true);
             const base64String = await toBase64(selectedFile);
-            const fileExtension = base64String.substring(base64String.indexOf('/')+1, base64String.indexOf(';'));
+            const fileExtension = base64String.substring(base64String.indexOf('/') + 1, base64String.indexOf(';'));
             const regex = new RegExp(`^data:image\/${fileExtension};base64,`);
             const base64Data = base64String.replace(regex, "");
             const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-            console.log(seed);            
+            console.log(seed);
 
             const response = await axios.post<APIResponse>(
                 `${API_BASE_URL}/run`,
@@ -135,7 +135,7 @@ const ImageProcessor: React.FC = () => {
         <Container fluid>
             <Row>
                 <Col>
-                    <h1>Image Processor</h1>
+                    <h1>SuperTalents Avatars</h1>
                 </Col>
             </Row>
             <Row>
@@ -143,18 +143,17 @@ const ImageProcessor: React.FC = () => {
                     <div {...getRootProps()} className="dropzone">
                         <input {...getInputProps()} />
                         {previewUrl ? (
-                            <Image src={previewUrl} thumbnail />
+                            <div className="result-image">
+                                <Image src={previewUrl} thumbnail />
+                            </div>
                         ) : (
                             <p>Drag and drop an image or click to select</p>
                         )}
                     </div>
-                    <Button variant="primary" onClick={handleSubmit}>
-                        Generate Avatar
-                    </Button>
                 </Col>
                 <Col md={6}>
                     {isLoading ? (
-                        <BeatLoader color="#00BFFF" size={80} />
+                        <BeatLoader color="#00BFFF" size={40} />
                     ) : (
                         resultImageUrl && (
                             <div className="result-image">
@@ -163,6 +162,13 @@ const ImageProcessor: React.FC = () => {
                         )
                     )}
                 </Col>
+            </Row>
+            <Row>
+                <div className="button-container">
+                    <Button variant="primary" onClick={handleSubmit}>
+                        Generate Avatar
+                    </Button>
+                </div>
             </Row>
             {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
         </Container>
