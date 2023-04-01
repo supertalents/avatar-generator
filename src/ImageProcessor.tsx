@@ -1,9 +1,11 @@
 // src/ImageProcessor.tsx
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Alert, Button, Col, Container, Form, Image, Row } from 'react-bootstrap';
+import { Alert, Button, Col, Container, Image, Row } from 'react-bootstrap';
 import { DropzoneRootProps, DropzoneInputProps, useDropzone } from 'react-dropzone';
 import { BeatLoader } from 'react-spinners';
+import heic2any from 'heic2any';
+import imageCompression from 'browser-image-compression';
 
 interface APIResponse {
     id: string;
@@ -61,21 +63,121 @@ const ImageProcessor: React.FC = () => {
         }
     }, [jobId]);
 
-    const onDrop = (acceptedFiles: File[]) => {
+    const onDrop = async (acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
-            setSelectedFile(acceptedFiles[0]);
-            setPreviewUrl(URL.createObjectURL(acceptedFiles[0]));
+
+            let file = acceptedFiles[0]
+            const isHeif = file.type === 'image/heif';
+            const isHeic = file.type === 'image/heic';
+
+            if (isHeif || isHeic) {
+                const buffer = await file.arrayBuffer();
+                const result = await heic2any({
+                    blob: new Blob([buffer], { type: file.type }),
+                    toType: 'image/jpeg'
+                });
+                if (Array.isArray(result)) {
+                    file = new File(result, `${file.name}.jpeg`, { type: 'image/jpeg' });
+                } else {
+                    file = new File([result], `${file.name}.jpeg`, { type: 'image/jpeg' });
+                }
+            }
+
+            // Create an object URL for the image file
+            const previewUrl = URL.createObjectURL(file);
+
+            // Create an HTMLImageElement to load the image file
+            const img = document.createElement('img');
+
+            // Wait for the image to load before cropping it
+            img.onload = async () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Determine the dimensions of the cropped square
+                const minSize = Math.min(img.width, img.height);
+                const x = (img.width - minSize) / 2;
+                const y = (img.height - minSize) / 2;
+                const size = minSize;
+
+                // Set the dimensions of the canvas to the size of the cropped square
+                canvas.width = size;
+                canvas.height = size;
+
+                // Draw the cropped square onto the canvas
+                ctx?.drawImage(img, x, y, size, size, 0, 0, size, size);
+
+                // Convert the canvas data to a blob
+                canvas.toBlob((blob) => {
+                    let croppedFile;
+
+                    if (Array.isArray(blob)) {
+                        croppedFile = new File(blob, `${file.name}.jpeg`, { type: 'image/jpeg' });
+                    } else if (blob != null) {
+                        croppedFile = new File([blob], `${file.name}.jpeg`, { type: 'image/jpeg' });
+                    } else {
+                        throw Error('An error occured')
+                    }
+
+                    setSelectedFile(croppedFile);
+                    setPreviewUrl(URL.createObjectURL(croppedFile));
+                }, file.type);
+            };
+
+            // Set the source of the image element to the object URL
+            img.src = previewUrl;
+
+            // setSelectedFile(file);
+            // setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
     const { getRootProps, getInputProps }: { getRootProps: () => DropzoneRootProps; getInputProps: () => DropzoneInputProps } = useDropzone({
         accept: {
             'image/jpeg': [],
-            'image/png': []
+            'image/png': [],
+            'image/heic': [],
+            'image/heif': []
         },
         maxFiles: 1,
+        onDropAccepted: async (files) => {
+            const file = files[0]
+            const isHeif = file.type === 'image/heif';
+            const isHeic = file.type === 'image/heic';
+
+            if (isHeif || isHeic) {
+                const buffer = await file.arrayBuffer();
+                const result = await heic2any({
+                    blob: new Blob([buffer], { type: file.type }),
+                    toType: 'image/jpeg'
+                });
+                if (Array.isArray(result)) {
+                    return new File(result, `${file.name}.jpeg`, { type: 'image/jpeg' });
+                } else {
+                    return new File([result], `${file.name}.jpeg`, { type: 'image/jpeg' });
+                }
+            }
+
+            return file;
+        },
         onDrop,
     });
+
+    async function compressImage(file: File): Promise<File> {
+        const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1280,
+            useWebWorker: true
+        };
+
+        try {
+            const compressedFile = await imageCompression(file, options);
+            return compressedFile;
+        } catch (error) {
+            console.log(error);
+            return file;
+        }
+    }
 
     const handleSubmit = async () => {
         if (!selectedFile) {
@@ -84,8 +186,11 @@ const ImageProcessor: React.FC = () => {
         }
 
         try {
+            const compressedFile = await compressImage(selectedFile);
             setIsLoading(true);
-            const base64String = await toBase64(selectedFile);
+            const base64String = await toBase64(compressedFile);
+            console.log(base64String);
+
             const fileExtension = base64String.substring(base64String.indexOf('/') + 1, base64String.indexOf(';'));
             const regex = new RegExp(`^data:image\/${fileExtension};base64,`);
             const base64Data = base64String.replace(regex, "");
