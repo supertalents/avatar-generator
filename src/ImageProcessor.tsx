@@ -165,7 +165,7 @@ const ImageProcessor: React.FC = () => {
 
     async function compressImage(file: File): Promise<File> {
         const options = {
-            maxSizeMB: 1,
+            maxSizeMB: 1.5,
             maxWidthOrHeight: 1280,
             useWebWorker: true
         };
@@ -270,9 +270,14 @@ const ImageProcessor: React.FC = () => {
             </Row>
             <Row>
                 <div className="button-container">
+                    {resultImageUrl == null ? (
                     <Button variant="primary" onClick={handleSubmit}>
                         Generate Avatar
+                    </Button>) : (
+                    <Button variant="primary" onClick={handleSubmit}>
+                        Regenerate Avatar
                     </Button>
+                    )}
                 </div>
             </Row>
             {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
