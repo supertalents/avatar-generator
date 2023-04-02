@@ -208,7 +208,7 @@ const ImageProcessor: React.FC = () => {
                         num_inference_steps: '30',
                         low_threshold: '100',
                         high_threshold: '200',
-                        guidance_scale: '10',
+                        guidance_scale: '8',
                         seed: seed,
                         image: base64Data,
                     },
