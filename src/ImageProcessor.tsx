@@ -166,7 +166,7 @@ const ImageProcessor: React.FC = () => {
     async function compressImage(file: File): Promise<File> {
         const options = {
             maxSizeMB: 1.5,
-            maxWidthOrHeight: 1280,
+            maxWidthOrHeight: 512,
             useWebWorker: true
         };
 
