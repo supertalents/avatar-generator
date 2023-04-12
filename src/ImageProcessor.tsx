@@ -311,7 +311,6 @@ const ImageProcessor: React.FC = () => {
             onClick={() => setShowAdvanced(!showAdvanced)}
           >
             {showAdvanced ? "Hide Advanced" : "Show Advanced"}
-            Cnfiguration
           </button>
           {showAdvanced && (
             <div>
