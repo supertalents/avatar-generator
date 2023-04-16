@@ -246,7 +246,7 @@ const ImageProcessor: React.FC = () => {
             low_threshold: "10",
             high_threshold: "80",
             guidance_scale: "10",
-            seed: 3138021023559539,
+            seed: seed,
             image: base64Data,
           },
         },
