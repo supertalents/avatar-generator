@@ -24,11 +24,13 @@ const ImageProcessor: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [resultImageUrl, setResultImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [seed, setSeed] = useState<number | null>(null);
+  const [userSeed, setUserSeed] = useState<number>(-1);
   const [prompt, setPrompt] = useState(
-    "RAW PHOTO, (dark eye mask:10), (laser eyes:0.7), (superhero:0.5), scifi, high detailed skin, high detailed mask, hyper-realistic mask, neon glow background, symmetric, 8k uhd, dslr, high quality, cinematic lighting, film grain, hyper realistic, Fujifilm XT3"
+    "RAW photo, (hero eye mask):10, (laser eyes:4), sharp focus, high-quality digital painting, photorealistic style, superhero look, cinematic lighting, well-lit face, natural skin color, art by Jim Lee, Marc Silvestri, Mike Winkelmann (Beeple), space background with neon lights (neon colors:3), photo-based superhero transformation, vibrant colors, face and hair not affected by neon lights, modern and stylish superhero costume, realistic appearance"
   );
   const [nprompt, setNprompt] = useState(
-    "Bad lighting, extreme glow on face, Weird mouth, weird teeth, shirtless, topless, nsfw, (cartoon:5), (illustration:5), (sculpture:3), (unnatural skin:3), eyebrows on mask, big mask, weird mask, badly fitting mask, evil look, covered nose, (whole face mask:3), ugly mask, (bad lighting:5), (light burst:5), nsfw, covered nose, face paint, (weird eyes:5), (ugly:5), windows, canvas frame, cartoon, disfigured, bad art, deformed, extra limbs, close up, b&w, black and white, weird colors, blurry, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, out of frame, extra limbs, bad anatomy, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated hands, fused fingers, too many fingers, long neck, Photoshop, video game, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy"
+    "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, watermark, signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, distorted face, blurry, draft, grainy, weird green color on face, weird reddish color on face, glowing light on face, no mask, (no eye mask:5), (mask only covering forehead:5), dark face, face silhouette, strange eyebrows, unnatural skin colors, full face mask, blue skin, purple skin, neon lights on face, neon lights on hair"
   );
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -41,6 +43,10 @@ const ImageProcessor: React.FC = () => {
 
   const handleNpromptChange = (e: any) => {
     setNprompt(e?.target?.value);
+  };
+
+  const handleUserSeedChange = (e: any) => {
+    setUserSeed(e?.target?.value);
   };
 
   useEffect(() => {
@@ -229,8 +235,14 @@ const ImageProcessor: React.FC = () => {
       );
       const regex = new RegExp(`^data:image\/${fileExtension};base64,`);
       const base64Data = base64String.replace(regex, "");
-      const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-      console.log(seed);
+
+      let seed = 0;
+      if (userSeed == -1) {
+        seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+      } else {
+        seed = userSeed;
+      }
+      setSeed(seed);
 
       const response = await axios.post<APIResponse>(
         `${API_BASE_URL}/run`,
@@ -240,10 +252,10 @@ const ImageProcessor: React.FC = () => {
             nprompt: nprompt,
             width: "512",
             height: "512",
-            num_inference_steps: "60",
+            num_inference_steps: "25",
             low_threshold: "50",
             high_threshold: "100",
-            guidance_scale: "12",
+            guidance_scale: "10",
             seed: seed,
             image: base64Data,
           },
@@ -304,6 +316,9 @@ const ImageProcessor: React.FC = () => {
         </Col>
       </Row>
       <Row>
+        <p>Seed: {seed}</p>
+      </Row>
+      <Row>
         <div className="prompt-container">
           <br />
           <button
@@ -314,8 +329,8 @@ const ImageProcessor: React.FC = () => {
           </button>
           {showAdvanced && (
             <div>
-              <label htmlFor="prompt">Prompt:</label>
               <br />
+              <label htmlFor="prompt">Prompt:</label>
               <textarea
                 id="prompt"
                 name="prompt"
@@ -325,13 +340,21 @@ const ImageProcessor: React.FC = () => {
               />
               <br />
               <label htmlFor="prompt">Negative Prompt:</label>
-              <br />
               <textarea
                 id="nprompt"
                 name="nprompt"
                 rows={4}
                 value={nprompt}
                 onChange={handleNpromptChange}
+              />
+              <br />
+              <label htmlFor="prompt">Seed (-1 for random):</label>
+              <textarea
+                id="prompt"
+                name="prompt"
+                rows={1}
+                value={userSeed}
+                onChange={handleUserSeedChange}
               />
             </div>
           )}
