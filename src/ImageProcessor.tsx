@@ -25,8 +25,9 @@ const ImageProcessor: React.FC = () => {
   const [resultImageUrl, setResultImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [seed, setSeed] = useState<number | null>(null);
+  const [userSeed, setUserSeed] = useState<number>(-1);
   const [prompt, setPrompt] = useState(
-    "(eye mask covering only the eyes:4) (laser eyes:4), sharp focus, high-quality digital painting, photorealistic style, superhero look, well-lit face, cinematic lighting, natural skin color, photo-based superhero transformation, vibrant colors, face and hair not affected by neon lights, futuristic space background with neon lights (neon colors:3), modern and stylish superhero costume,  realistic appearance, in the style of Alex Ross and Jim Lee"
+    "RAW photo, (hero eye mask):10, (laser eyes:4), sharp focus, high-quality digital painting, photorealistic style, superhero look, cinematic lighting, well-lit face, natural skin color, art by Jim Lee, Marc Silvestri, Mike Winkelmann (Beeple), space background with neon lights (neon colors:3), photo-based superhero transformation, vibrant colors, face and hair not affected by neon lights, modern and stylish superhero costume, realistic appearance"
   );
   const [nprompt, setNprompt] = useState(
     "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, watermark, signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, distorted face, blurry, draft, grainy, weird green color on face, weird reddish color on face, glowing light on face, no mask, (no eye mask:5), (mask only covering forehead:5), dark face, face silhouette, strange eyebrows, unnatural skin colors, full face mask, blue skin, purple skin, neon lights on face, neon lights on hair"
@@ -42,6 +43,10 @@ const ImageProcessor: React.FC = () => {
 
   const handleNpromptChange = (e: any) => {
     setNprompt(e?.target?.value);
+  };
+
+  const handleUserSeedChange = (e: any) => {
+    setUserSeed(e?.target?.value);
   };
 
   useEffect(() => {
@@ -230,8 +235,13 @@ const ImageProcessor: React.FC = () => {
       );
       const regex = new RegExp(`^data:image\/${fileExtension};base64,`);
       const base64Data = base64String.replace(regex, "");
-      const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-      console.log(seed);
+
+      let seed = 0;
+      if (userSeed == -1) {
+        seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+      } else {
+        seed = userSeed;
+      }
       setSeed(seed);
 
       const response = await axios.post<APIResponse>(
@@ -243,8 +253,8 @@ const ImageProcessor: React.FC = () => {
             width: "512",
             height: "512",
             num_inference_steps: "25",
-            low_threshold: "10",
-            high_threshold: "80",
+            low_threshold: "50",
+            high_threshold: "100",
             guidance_scale: "10",
             seed: seed,
             image: base64Data,
@@ -319,8 +329,8 @@ const ImageProcessor: React.FC = () => {
           </button>
           {showAdvanced && (
             <div>
-              <label htmlFor="prompt">Prompt:</label>
               <br />
+              <label htmlFor="prompt">Prompt:</label>
               <textarea
                 id="prompt"
                 name="prompt"
@@ -330,13 +340,21 @@ const ImageProcessor: React.FC = () => {
               />
               <br />
               <label htmlFor="prompt">Negative Prompt:</label>
-              <br />
               <textarea
                 id="nprompt"
                 name="nprompt"
                 rows={4}
                 value={nprompt}
                 onChange={handleNpromptChange}
+              />
+              <br />
+              <label htmlFor="prompt">Seed (-1 for random):</label>
+              <textarea
+                id="prompt"
+                name="prompt"
+                rows={1}
+                value={userSeed}
+                onChange={handleUserSeedChange}
               />
             </div>
           )}
