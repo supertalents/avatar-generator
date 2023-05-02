@@ -25,7 +25,7 @@ const ImageProcessor: React.FC = () => {
   const [resultImageUrl, setResultImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [prompt, setPrompt] = useState(
-    "(RAW PHOTO:2), (hero eye mask:15), (laser eyes:4), (superhero:3), (scifi:2), (high detailed skin:3), (high detailed mask:2), (hyper realistic mask:2), (synthwave:0.1), (8k uhd, dslr, high quality, cinematic lighting, film grain, hyper realistic, Fujifilm XT3:4)"
+    "(RAW PHOTO:2), (dark hero mask:15), (laser eyes:4), (superhero:3), (scifi:2), (high detailed skin:3), (high detailed mask:2), (hyper realistic mask:2), (synthwave:0.1), (8k uhd, dslr, high quality, cinematic lighting, film grain, hyper realistic, Fujifilm XT3:4)"
   );
   const [nprompt, setNprompt] = useState(
     "(cartoon:5), (illustration:5), (sculpture:3), (unnatural skin:3), eyebrows on mask, (big mask:3), (weird mask:3), badly fitting mask, evil look, covered nose, (whole face mask:3), ugly mask, (bad lighting:5), (light burst:5), nsfw, covered nose, face paint, (weird eyes:5), (ugly:5), windows, canvas frame, cartoon, disfigured, bad art, deformed, extra limbs, close up, b&w, black and white, weird colors, blurry, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, out of frame, extra limbs, bad anatomy, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated hands, fused fingers, too many fingers, long neck, Photoshop, video game, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, 3d render"
@@ -242,7 +242,7 @@ const ImageProcessor: React.FC = () => {
             height: "512",
             num_inference_steps: "60",
             low_threshold: "20",
-            high_threshold: "120",
+            high_threshold: "100",
             guidance_scale: "12",
             seed: seed,
             image: base64Data,
