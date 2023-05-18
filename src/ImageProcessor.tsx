@@ -27,7 +27,7 @@ const ImageProcessor: React.FC = () => {
   const [seed, setSeed] = useState<number | null>(null);
   const [userSeed, setUserSeed] = useState<number>(-1);
   const [prompt, setPrompt] = useState(
-    "RAW photo, (hero eye mask):10, (laser eyes:4), sharp focus, high-quality digital painting, photorealistic style, superhero look, cinematic lighting, well-lit face, natural skin color, art by Jim Lee, Marc Silvestri, Mike Winkelmann (Beeple), space background with neon lights (neon colors:3), photo-based superhero transformation, vibrant colors, face and hair not affected by neon lights, modern and stylish superhero costume, realistic appearance"
+    "RAW photo, (hero eye mask:10), (laser eyes:4), sharp focus, high-quality digital painting, photorealistic style, superhero look, cinematic lighting, well-lit face, natural skin color, art by Jim Lee, Marc Silvestri, Mike Winkelmann (Beeple), space background with neon lights (neon colors:3), vibrant colors, face and hair not affected by neon lights, modern and stylish superhero costume, realistic appearance"
   );
   const [nprompt, setNprompt] = useState(
     "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, watermark, signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, distorted face, blurry, draft, grainy, weird green color on face, weird reddish color on face, glowing light on face, no mask, (no eye mask:5), (mask only covering forehead:5), dark face, face silhouette, strange eyebrows, unnatural skin colors, full face mask, blue skin, purple skin, neon lights on face, neon lights on hair"
@@ -237,7 +237,7 @@ const ImageProcessor: React.FC = () => {
       const base64Data = base64String.replace(regex, "");
 
       let seed = 0;
-      if (userSeed == -1) {
+      if (userSeed === -1) {
         seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
       } else {
         seed = userSeed;
@@ -252,9 +252,9 @@ const ImageProcessor: React.FC = () => {
             nprompt: nprompt,
             width: "512",
             height: "512",
-            num_inference_steps: "25",
+            num_inference_steps: "30",
             low_threshold: "50",
-            high_threshold: "100",
+            high_threshold: "150",
             guidance_scale: "10",
             seed: seed,
             image: base64Data,
