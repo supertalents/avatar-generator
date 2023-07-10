@@ -10,7 +10,7 @@ import {
 import { BeatLoader } from "react-spinners";
 import heic2any from "heic2any";
 import imageCompression from "browser-image-compression";
-
+import {get} from 'lodash';
 interface APIResponse {
   id: string;
   status: string;
@@ -62,18 +62,15 @@ const ImageProcessor: React.FC = () => {
             }
           );
 
-          if (response.data.status === "COMPLETED") {
+          if (response.data.status === "COMPLETED" && response.data.output !== undefined) {
             console.log(`response: ${JSON.stringify(response)}`);
 
-            if (response.data.output?.includes("image")) {
-              const resultOutputJson = JSON.parse(response.data.output);
-              const resultImage = resultOutputJson["image"];
-              setResultImageUrl(`data:image/png;base64,${resultImage}`);
-              console.log(`Result image url: ${resultImageUrl}`);
+            const resultImage = get(response.data.output[0],"image");
+            setResultImageUrl(`data:image/png;base64,${resultImage}`);
+            console.log(`Result image url: ${resultImageUrl}`);
 
-              clearInterval(interval);
-              setIsLoading(false);
-            }
+            clearInterval(interval);
+            setIsLoading(false);
           }
         } catch (error) {
           clearInterval(interval);
@@ -258,6 +255,7 @@ const ImageProcessor: React.FC = () => {
             guidance_scale: "10",
             seed: seed,
             image: base64Data,
+            no_of_images: 4
           },
         },
         {
